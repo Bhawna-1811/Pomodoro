@@ -1,44 +1,68 @@
-const bells = new Audio('./sounds/bell.wav'); 
-const startBtn = document.querySelector('.btn-start'); 
-const session = document.querySelector('.minutes'); 
-let myInterval; 
-let state = true;
+const bells = new Audio('sound_ping.mp3');
+const startBtn = document.querySelector('.btn-start');
+const resetBtn = document.querySelector('.btn-reset');
+const session = document.querySelector('.minutes');
+const sessionContainer = document.querySelector('.app-counter-box');
+let myInterval;
+let isSession = true;
 
 const appTimer = () => {
-    const sessionAmount = Number.parseInt(session.textContent)
-    
-    if(state) {
-        state = false;
-      let totalSeconds = sessionAmount * 60;
+    const sessionAmount = isSession ? 25 : 5; // 25 minutes session and 5 minutes break
 
-        const updateSeconds = () => {
-            const minuteDiv = document.querySelector('.minutes');
-            const secondDiv = document.querySelector('.seconds');
-            
-            totalSeconds--;
-            
-            let minutesLeft = Math.floor(totalSeconds/60);
-            let secondsLeft = totalSeconds % 60;
-            
-            if(secondsLeft < 10) {
-                secondDiv.textContent = '0' + secondsLeft;
-            } else {
-                secondDiv.textContent = secondsLeft;
-            }
-            minuteDiv.textContent = `${minutesLeft}`
-            
-            if(minutesLeft === 0 && secondsLeft === 0) {
-                bells.play()
-                clearInterval(myInterval);
-            }
-        }
-        myInterval = setInterval(updateSeconds, 1000);
+    if (isSession) {
+        startBtn.textContent = 'session';
     } else {
-        alert('Session has already started.')
-        
-    }
+        startBtn.textContent = 'break';
     }
 
-    startBtn.addEventListener('click', appTimer);
+    let totalSeconds = sessionAmount * 60;
+
+    const updateSeconds = () => {
+        const minuteDiv = document.querySelector('.minutes');
+        const secondDiv = document.querySelector('.seconds');
+
+        totalSeconds--;
+
+        let minutesLeft = Math.floor(totalSeconds / 60);
+        let secondsLeft = totalSeconds % 60;
+
+        if (secondsLeft < 10) {
+            secondDiv.textContent = '0' + secondsLeft;
+        } else {
+            secondDiv.textContent = secondsLeft;
+        }
+        minuteDiv.textContent = `${minutesLeft}`;
+
+        if (minutesLeft === 0 && secondsLeft === 0) {
+            bells.play();
+            clearInterval(myInterval);
+
+            // Toggle between session and break
+            isSession = !isSession;
+
+            // Restart the timer
+            appTimer();
+        }
+    };
+
+    myInterval = setInterval(updateSeconds, 1000);
+};
+
+const resetTimer = () => {
+    clearInterval(myInterval);
+    isSession = true;
+    const minuteDiv = document.querySelector('.minutes');
+    const secondDiv = document.querySelector('.seconds');
+
+    minuteDiv.textContent = '25';
+    secondDiv.textContent = '00';
+    startBtn.textContent = 'start';
+};
+
+startBtn.addEventListener('click', appTimer);
+resetBtn.addEventListener('click', resetTimer);
+
+
+
 
 
